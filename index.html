@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Justus Munyalo Kiema | Editable Resume</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <!-- html2pdf library for direct PDF generation (no print dialog) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #eef2ff;
+      color: #0f172a;
+      line-height: 1.4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+  
+    .resume-page {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      background: white;
+      border-radius: 1.25rem;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+
+    .resume-inner {
+      padding: 1.2rem 1.5rem 1rem 1.5rem;
+    }
+
+    
+    .hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      border-radius: 1rem;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.2rem;
+    }
+
+    .hero-tag {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      margin-bottom: 0.8rem;
+      border-left: 3px solid #3b82f6;
+      padding-left: 0.7rem;
+    }
+
+    .contact-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      row-gap: 0.4rem;
+      font-size: 0.75rem;
+      background: rgba(255,255,255,0.08);
+      padding: 0.6rem 1rem;
+      border-radius: 1.2rem;
+    }
+
+    .contact-info a, .contact-info span {
+      color: #e2e8f0;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* editable styling */
+    [contenteditable="true"] {
+      outline: none;
+      transition: background 0.1s ease;
+      border-radius: 0.25rem;
+      padding: 0.1rem 0.2rem;
+    }
+    [contenteditable="true"]:hover {
+      background: #fef9c3;
+      cursor: text;
+    }
+    [contenteditable="true"]:focus {
+      background: #fef08a;
+      box-shadow: 0 0 0 2px #3b82f6;
+    }
+
+    /* section styling */
+    .section {
+      margin-bottom: 1rem;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.2rem;
+      border-bottom: 2px solid #3b82f6;
+      display: inline-block;
+      letter-spacing: -0.2px;
+    }
+
+    .two-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 0.4rem;
+    }
+
+    .skill-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin-top: 0.3rem;
+    }
+
+    .skill-badge {
+      background: #f1f5f9;
+      padding: 0.2rem 0.7rem;
+      border-radius: 1.2rem;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #1e293b;
+      border: 1px solid #e2e8f0;
+      display: inline-block;
+    }
+
+    .skill-category-box {
+      background: #f8fafc;
+      border-radius: 0.9rem;
+      padding: 0.6rem 0.9rem;
+      margin-bottom: 0.6rem;
+      border-left: 3px solid #3b82f6;
+    }
+
+    .skill-category-box h3 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .job-item, .project-item {
+      margin-bottom: 0.7rem;
+    }
+
+    .job-header, .project-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.2rem;
+    }
+
+    .job-title, .project-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .job-company, .project-links {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #2563eb;
+    }
+
+    .job-date, .project-date {
+      font-size: 0.65rem;
+      background: #eef2ff;
+      padding: 0.1rem 0.5rem;
+      border-radius: 1rem;
+    }
+
+    .job-desc ul, .project-desc ul {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 0.2rem;
+    }
+
+    .job-desc li, .project-desc li {
+      font-size: 0.7rem;
+      margin-bottom: 0.2rem;
+      padding-left: 1rem;
+      position: relative;
+      line-height: 1.3;
+    }
+
+    .job-desc li::before, .project-desc li::before {
+      content: "▹";
+      position: absolute;
+      left: 0;
+      color: #3b82f6;
+      font-size: 0.65rem;
+    }
+
+    .referee-item {
+      background: #f8fafc;
+      padding: 0.5rem 0.8rem;
+      border-radius: 0.8rem;
+      border-left: 3px solid #3b82f6;
+      font-size: 0.7rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .referee-name {
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.6rem;
+      color: #64748b;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 0.6rem;
+      padding-top: 0.6rem;
+    }
+
+    .edu-entry {
+      margin-bottom: 0.3rem;
+    }
+    .edu-title {
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+    .edu-detail {
+      font-size: 0.7rem;
+      color: #334155;
+    }
+    .skills-tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin: 0.3rem 0 0.5rem 0;
+    }
+    .lang-item {
+      font-size: 0.75rem;
+      margin-top: 0.2rem;
+    }
+
+    /* PDF generation styling */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+      .resume-page {
+        box-shadow: none;
+        margin: 0;
+        border-radius: 0;
+        max-width: 100%;
+      }
+      .resume-inner {
+        padding: 0.2in 0.2in 0.1in 0.2in;
+      }
+      .hero {
+        background: #0f172a;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .skill-badge, .job-date, .project-date {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      [contenteditable="true"]:hover, [contenteditable="true"]:focus {
+        background: transparent;
+      }
+    }
+
+   
+    .toast-msg {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #0f172a;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.8rem;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      font-family: monospace;
+    }
+
+    @media (max-width: 750px) {
+      .two-columns {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="resume-page" id="resumeContainer">
+  <div class="resume-inner">
+    <!-- Header: all text editable -->
+    <div class="hero">
+      <h1 contenteditable="true" id="editName">JUSTUS MUNYALO KIEMA</h1>
+      <div class="hero-tag" contenteditable="true" id="editTagline">Computer Scientist | IT Support Specialist | Backend Developer</div>
+      <div class="contact-info" contenteditable="true" id="editContact">
+        <span>📍 Nairobi, Kenya</span>
+        <span>📞 0742 052 976</span>
+        <span>✉️ justuskiema877@gmail.com</span>
+        <span>🔗 linkedin.com/in/justus-kiema</span>
+        <span>🐙 github.com/justus-kiema</span>
+      </div>
+    </div>
+
+  
+    <div class="section">
+      <div class="section-title">Professional Summary</div>
+      <p contenteditable="true" style="font-size: 0.75rem; margin-top: 0.3rem; color: #1e293b;">Computer Scientist student with strong foundation in programming, networking and IT support. Analytical and troubleshooting skills, hands-on experience in academic & practical projects. Quick learner passionate about software development and IT services.</p>
+    </div>
+
+
+    <div class="two-columns">
+      <!-- LEFT COLUMN -->
+      <div>
+        
+        <div class="section">
+          <div class="section-title">Core Technical Skills</div>
+          <div class="skill-category-box" contenteditable="true">
+            <h3>🖥️ IT Support & Infra</h3>
+            <div>Technical Support, Helpdesk Support, HW/SW Troubleshooting, Windows OS, Active Directory</div>
+          </div>
+          <div class="skill-category-box" contenteditable="true">
+            <h3>🌐 Networking & Systems</h3>
+            <div>TCP/IP, LAN/WAN, Network Troubleshooting, Router/Switch Config, CCNA Basics</div>
+          </div>
+          <div class="skill-category-box" contenteditable="true">
+            <h3>💻 Software Development</h3>
+            <div>PHP, MySQL, JavaScript, Backend Dev, Database Design, Git</div>
+          </div>
+          <div class="skill-category-box" contenteditable="true">
+            <h3>🏢 Enterprise Systems</h3>
+            <div>SAP ERP Support, User Access Management</div>
+          </div>
+        </div>
+
+        
+        <div class="section">
+          <div class="section-title">Education</div>
+          <div class="edu-entry" contenteditable="true">
+            <div class="edu-title">Chuka University</div>
+            <div class="edu-detail">BSc Computer Science | Sep 2022 – Apr 2026 (Exp. Nov 2026)</div>
+          </div>
+          <div class="edu-entry" contenteditable="true">
+            <div class="edu-title">Kitui School (KCSE)</div>
+            <div class="edu-detail">2018 – 2021 | Grade B+</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Professional Skills</div>
+          <div class="skills-tag-list" contenteditable="true">
+            Problem Solving, Analytical Thinking, Communication, Team Collaboration, Time Management, Adaptability, Attention to Detail, Critical Thinking
+          </div>
+          <div class="section-title" style="margin-top: 0.3rem;">Languages</div>
+          <div class="lang-item" contenteditable="true"><strong>English</strong> – Full Professional Proficiency</div>
+          <div class="lang-item" contenteditable="true"><strong>Kiswahili</strong> – Full Professional Proficiency</div>
+        </div>
+
+        
+        <div class="section">
+          <div class="section-title">Referees</div>
+          <div class="referee-item" contenteditable="true">
+            <div class="referee-name">Washington Rapul</div>
+            <div>ICT Manager, Dakawou Transport Ltd</div>
+            <div>📞 +254 713 750 507</div>
+          </div>
+        </div>
+      </div>
+
+      
+      <div>
+        <div class="section">
+          <div class="section-title">Work Experience</div>
+          <div class="job-item" contenteditable="true">
+            <div class="job-header">
+              <span class="job-title">IT Attachee</span>
+              <span class="job-date">May 2025 – Aug 2025</span>
+            </div>
+            <div class="job-company">Dakawou Transport Ltd – Nairobi</div>
+            <div class="job-desc">
+              <ul contenteditable="false"> <!-- to keep list structure but allow editing, we make the list items editable individually -->
+                <li contenteditable="true">First-level IT support, hardware/software & network issues.</li>
+                <li contenteditable="true">Configured 3CX VoIP system for internal communication.</li>
+                <li contenteditable="true">Supported SAP ERP and Active Directory management.</li>
+                <li contenteditable="true">Network port activation, testing and connectivity troubleshooting.</li>
+                <li contenteditable="true">Assisted internal system improvements & IT infrastructure security.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Project Experience</div>
+          <div class="project-item" contenteditable="true">
+            <div class="project-header">
+              <span class="project-title">Autogarage System (Thesis)</span>
+              <span class="project-date">Sep 2025 – Mar 2026</span>
+            </div>
+            <div class="project-links">github.com/justus-kiema</div>
+            <div class="project-desc">
+              <ul contenteditable="false">
+                <li contenteditable="true">Real-time customer–mechanic request management system.</li>
+                <li contenteditable="true">Backend: PHP & MySQL, request tracking & role dashboards (admin/mechanic/customer).</li>
+                <li contenteditable="true">Payment logic with callback handling, database design and workflow orchestration.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Additional</div>
+          <div contenteditable="true" style="font-size:0.7rem; display: flex; gap: 0.5rem; flex-wrap:wrap;">
+            <span class="skill-badge">CCNA Basics</span>
+            <span class="skill-badge">SAP ERP User Mgmt</span>
+            <span class="skill-badge">3CX VoIP</span>
+          </div>
+          <div contenteditable="true" style="margin-top: 0.4rem; font-size:0.68rem; color:#334155;">✔ Available for IT support & junior dev roles</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer" contenteditable="true">
+      © 2026 Justus Munyalo Kiema — Editable one‑page CV | IT Support & Software Development
+    </div>
+  </div>
+</div>
+
+
+<div id="downloadToast" class="toast-msg">📄 PDF exported successfully</div>
+
+<script>
+  (function() {
+    const container = document.getElementById('resumeContainer');
+    const toast = document.getElementById('downloadToast');
+
+    function showToast(message) {
+      if (!toast) return;
+      toast.textContent = message || "📄 PDF exported successfully";
+      toast.style.opacity = '1';
+      setTimeout(() => {
+        toast.style.opacity = '0';
+      }, 2000);
+    }
+
+   
+    function downloadPDFDirectly() {
+      if (!container) return;
+     
+      showToast("Generating PDF, please wait...");
+      const opt = {
+        margin:        [0.5, 0.5, 0.5, 0.5],
+        filename:     'Justus_Munyalo_Kiema_CV_edited.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, letterRendering: true, useCORS: false, logging: false },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(container).save().then(() => {
+        showToast("✅ PDF saved! (Edited version)");
+      }).catch(err => {
+        console.error(err);
+        showToast("❌ Error generating PDF, check console");
+      });
+    }
+
+  
+    window.addEventListener('keydown', function(e) {
+      // Check for Ctrl+Shift+D (or Meta+Shift+D on Mac)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
+        e.preventDefault();
+        downloadPDFDirectly();
+      }
+    });
+       const style = document.createElement('style');
+    style.textContent = `
+      body::after {
+        content: "✎ Edit any text  |  Press Ctrl+Shift+D to save as PDF";
+        position: fixed;
+        bottom: 8px;
+        left: 8px;
+        background: rgba(15,23,42,0.7);
+        color: white;
+        font-size: 0.6rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 1rem;
+        pointer-events: none;
+        z-index: 999;
+        font-family: monospace;
+        backdrop-filter: blur(4px);
+      }
+      @media print {
+        body::after { display: none; }
+      }
+    `;
+    document.head.appendChild(style);
+  })();
+</script>
+</body>
+</html>
